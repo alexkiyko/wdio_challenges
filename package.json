@@ -1,0 +1,36 @@
+{
+  "name": "wdio_tasks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexkiyko/wdio_tasks.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alexkiyko/wdio_tasks/issues"
+  },
+  "homepage": "https://github.com/alexkiyko/wdio_tasks#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/register": "^7.9.0",
+    "@wdio/cli": "^6.0.15",
+    "@wdio/local-runner": "^6.0.15",
+    "@wdio/mocha-framework": "^6.0.15",
+    "@wdio/spec-reporter": "^6.0.14",
+    "@wdio/sync": "^6.0.15",
+    "chromedriver": "^80.0.2",
+    "wdio-chromedriver-service": "^6.0.1"
+  },
+  "dependencies": {
+    "axios": "^0.19.2",
+    "chai": "^4.2.0"
+  }
+}
