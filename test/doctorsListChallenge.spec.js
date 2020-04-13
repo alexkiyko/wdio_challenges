@@ -1,8 +1,25 @@
+/**
+ Description
+ Feature: Врачи › Страница выдачи врачей: Фильтр "Расписание" на выдаче врачей
+ Scenario : Выбор дня
+ Given Открыта страница сайта "/doctor"
+ Then Отображаются 10 карточек врачей на странице
+ Then Отображается кнопка "Расписание (фильтр)"
+ Then Заголовок кнопки ”Расписание (фильтр)" содержит текст """Расписание на все дни"""
+ When Нажимаем на кнопку  "Расписание (фильтр)"
+ Then Отображается элемент "Список значений для выбора даты"
+ Then Помечен галочкой пункт "Все дни" в выпадающем списке "Список значений для выбора даты"
+ When Нажимаем на пункт "Завтра" в выпадающем списке "Список значений для выбора даты"
+ Then Заголовок кнопки "Расписание (фильтр)" содержит текст""" Расписание на завтра"""
+ Then Отображаются 10 карточек врачей на странице
+ Then Отображаются врачи, работающие в выбранный день
+ */
+
 import { expect } from 'chai';
+
 
 describe('Doctors list time schedule', function () {
   before('Load page', function () {
-    const doctorsCards = $('//div[@class="the-doctor-list-items"]');
     browser.maximizeWindow();
     browser.url('https://docdoc.ru/doctor');
   });
@@ -26,16 +43,16 @@ describe('Doctors list time schedule', function () {
   it('when press on schedule button should display dropdown list', function () {
     const scheduleBtn = $('//div[@data-test-id="filters"]//button[@data-test-id="calendar-button"]');
     const dropdownList = $('//div[@data-test-id="date_select_items"]');
-    // scheduleBtn.scrollIntoView();
+    scheduleBtn.scrollIntoView();
+    browser.pause(500);
     scheduleBtn.click();
-    dropdownList.waitForDisplayed(2000);
+    dropdownList.waitForDisplayed();
     expect(dropdownList.isDisplayed()).true;
   });
 
   it('should verify "Все дни" is selected  ', function () {
     const elementClass = $('//button[@data-test-id="date_select"]').getAttribute('class');
     expect(elementClass.includes('active')).true;
-
   });
 
   it('when press "Завтра" button should verify schedule button name has changed  to "Расписание на завтра"', function () {
