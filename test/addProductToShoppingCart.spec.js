@@ -70,9 +70,7 @@ describe('Add product to shopping cart', () => {
     for (let i = 0; i < $$(selectors.pages).length; i++){
       countPages++;
       $$(selectors.products).forEach(product => {
-        if (product.getText().includes('Table')) {
-          expect(product.getText()).contains('Table');
-        } else {
+        if (!product.getText().includes('Table')) {
           console.error('Product:' + product.getText(), 'PAGE:' + countPages);
         }
       });
