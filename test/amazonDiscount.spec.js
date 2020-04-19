@@ -3,37 +3,33 @@ const { expect } = require('chai');
 const el = {
   searchBar: '//input[@id="twotabsearchtextbox"]',
   searchButton: '//input[@type="submit"]',
-  dropdownFilter: '//select[@id="searchDropdownBox"]',
   primeCheckbox: '//div[@id="primeRefinements"]//i[contains(@class,"a-icon-checkbox")]',
   nextButton: '//ul[@class="a-pagination"]//a[text() = "Next"]',
   addToCartButton: '//input[@id="add-to-cart-button"]',
   cart: '//a[@id="nav-cart"]',
+  cartItemsCount: '//span[@id="nav-cart-count"]',
+  productName: '//span[contains(@class, "sc-product-title")]',
+  products: '//div[@data-index]',
 };
 
-function searchForProduct(product, filter, prime) {
-  $(el.searchBar).setValue(product);
-  $(el.dropdownFilter).selectByVisibleText(filter);
-  $(el.searchButton).click();
-  if(prime) {
-    $(el.primeCheckbox).click();
-  }
-}
 
 
-
-describe('TEST AMAZON PAGE', () => {
+describe('Amazon -> search for product with maximum discount price', () => {
   before(() => {
     browser.maximizeWindow();
     browser.url('https://www.amazon.com/');
   });
 
-  it('should ', function () {
-    searchForProduct('google nest hello', 'Electronics', 'prime');
+  it('should search for product', () => {
+    $(el.searchBar).waitForDisplayed({ timeout: 5000 });
+    $(el.searchBar).setValue('padlock');
+    $(el.searchButton).click();
+    $(el.primeCheckbox).click();
   });
 
   let maxDiscountPercent = 0;
   let maxDiscountProductLink;
-  let productInListTitle;
+  let maxDiscountProductName = '';
 
   it('should find the product with the maximum discount %', () => {
 
@@ -44,24 +40,19 @@ describe('TEST AMAZON PAGE', () => {
      */
 
     while ( true ) {
-      browser.pause(1000);
-      const products = $$('//div[@data-index]');
-
-      for (let i = 1; i <= products.length; i++) {
+      $(el.products).waitForDisplayed({ timeout: 5000 });
+      for (let i = 1; i <= $$(el.products).length; i++) {
         if ($(`(${'//div[@data-index]'})[${i}]//span[@class = "a-price a-text-price"]`).isExisting()) {
           const originalPrice = $(`(${'//div[@data-index]'})[${i}]//span[@class = "a-price a-text-price"]`).getText().slice(1);
-          console.log('original price', originalPrice);
           const discountPrice = $(`(${'//div[@data-index]'})[${i}]//span[@class = "a-price"]`).getText().replace(/\s/g, '.').slice(1);
-          console.log('discount price', discountPrice);
           const discountPercent = (+originalPrice / +discountPrice).toFixed(2);
           if (+discountPercent > maxDiscountPercent) {
             maxDiscountPercent = +discountPercent;
-            console.log(maxDiscountPercent);
-            maxDiscountProductLink = $(`(${'//div[@data-index]'})[${i}]//a`).getAttribute('href');
+            maxDiscountProductLink = $(`(${'//div[@data-index]'})[${i}]//h2/a`).getAttribute('href');
+            maxDiscountProductName = $(`(${'//div[@data-index]'})[${i}]//h2`).getText();
           }
         }
       }
-
       if ($(el.nextButton).isClickable()) {
         $(el.nextButton).click();
       } else {
@@ -70,19 +61,15 @@ describe('TEST AMAZON PAGE', () => {
     }
   });
 
-  it('should open the product with maximum discount and add it to bag', () =>{
-    browser.pause(5000);
+  it('should open the product with maximum discount and add to cart', () => {
     browser.url(maxDiscountProductLink);
-    browser.pause(5000);
+    $(el.addToCartButton).waitForDisplayed({ timeout: 5000 });
     $(el.addToCartButton).click();
+    expect($(el.cartItemsCount).getText()).equals('1');
   });
 
-  it('should check that the correct item has been added to the cart', () =>{
+  it('should verify correct product added to cart', () => {
     $(el.cart).click();
-    // browser.refresh();
-    browser.pause(1000);
-    const productInCartTitle = browser.$('//div[@data-name="Active Items"]//div[@data-asin]').getAttribute('data-asin');
-    expect((productInCartTitle).includes(productInListTitle)).true;
+    expect(maxDiscountProductName).equals($(el.productName).getText());
   });
-
 });
