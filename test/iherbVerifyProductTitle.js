@@ -1,46 +1,61 @@
+/*
+go to https://www.iherb.com
+search for any product
+from the result list take first 10 products on the page
+open the product and verify product has correct title
+ */
+
 import { expect } from 'chai';
 
-describe('', function () {
+const sel = {
+  searchInput: '//input[@id="txtSearch"]',
+  searchButton: '//button[@id="searchBtn"]',
+  productsDisplay: '//div[@class="panel"]',
+  searchResultText: '//h1[@class="sub-header-title search"]',
+  productsOnSale: '//div[@id="carousel-trending"]',
+};
 
-  before('open page', function () {
-    // browser.maximizeWindow();
+function searchForProduct(product) {
+  $(sel.searchInput).setValue(product);
+  $(sel.searchButton).click();
+  waitForLoading($(sel.productsDisplay));
+}
+
+function waitForLoading(selector) {
+  browser.waitUntil( () => selector.isDisplayed(),
+    { timeout: 5000 });
+}
+
+
+
+describe('iherb.com', function () {
+
+  before('open home page', function () {
+    browser.maximizeWindow();
     browser.url('https://www.iherb.com/');
-    // browser.pause(1000);
+    waitForLoading($(sel.productsOnSale));
   });
 
-  it('should search for product', function () {
-    $('//input[@id="txtSearch"]').click();
-    $('//input[@id="txtSearch"]').setValue('msm glucosamine');
-    $('//button[@id="searchBtn"]').click();
-    browser.pause(1000);
-    console.log($('//h1[@class="sub-header-title search"]').getText());
-    expect($('//h1[@class="sub-header-title search"]').getText()).equals('Search Results for "msm glucosamine"')
+  it('search for product', function () {
+    searchForProduct('msm glucosamine');
+    // console.log($(sel.searchResultText).getText());
+    expect($(sel.searchResultText).getText()).equals('Search Results for "msm glucosamine"')
   });
 
-
-  it('should get product name', function () {
-    let actualProductName = $('(//div[@class="product ga-product"])[1]//div[@class="product-title"]').getText();
-    console.log(actualProductName);
-
+  it('should verify product title', function () {
     const products = $$('(//div[@class="product ga-product"])');
-    // const product = $('(//div[@class="product ga-product"])');
-    for (let i = 1; i <= products.length - 20; i++) {
-      let productName = $(`(${'(//div[@class="product ga-product"])'})[${i}]//div[@class="product-title"]`).getText();
-      $(`(${'(//div[@class="product ga-product"])'})[${i}]`).scrollIntoView();
-      $(`(${'(//div[@class="product ga-product"])'})[${i}]`).click({ button: "left", x: 60 });
-      browser.pause(1000 );
-      console.log($('(//h1[@id="name"])[2]').getText());
+    for (let i = 1; i <= products.length - 14; i++) {
+      let actualProductName = browser.$(`(${'(//div[@class="product ga-product"])'})[${i}]//div[@class="product-title"]`).getText();
+      let expectedProductName = browser.$('(//h1[@id="name"])[2]');
+      // console.log(actualProductName);
+      let product = $(`(${'(//div[@class="product ga-product"])'})[${i}]`);
+      product.scrollIntoView();
+      product.click({ button: "left", x: 60 });
+      waitForLoading(expectedProductName);
+      // console.log(expectedProductName.getText());
+      expect(actualProductName).equals(expectedProductName.getText());
       browser.back();
-      browser.pause(500);
+      waitForLoading($(sel.productsDisplay));
     }
-
-    // $('(//div[@class="product ga-product"])[1]').click({ button: "left", x: 30, y: 30 });
-    // browser.pause(3000);
-    // let expected = $('(//h1[@id="name"])[2]').getText();
-    // expect(actualProductName).equals(expected);
-
   });
-
-
-
 });
